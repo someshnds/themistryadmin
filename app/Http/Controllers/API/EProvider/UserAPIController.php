@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use App\Repositories\CustomFieldRepository;
+use App\Events\EProviderChangedEvent;
 use App\Repositories\RoleRepository;
 use App\Repositories\UploadRepository;
 use App\Repositories\UserRepository;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use App\Repositories\EProviderRepository;
 
 class UserAPIController extends Controller
 {
@@ -29,20 +31,23 @@ class UserAPIController extends Controller
      * @var UserRepository
      */
     private $userRepository;
-
+    /** @var  EProviderRepository */
+    private $eProviderRepository;
     private $uploadRepository;
     private $roleRepository;
     private $customFieldRepository;
+
 
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(UserRepository $userRepository, UploadRepository $uploadRepository, RoleRepository $roleRepository, CustomFieldRepository $customFieldRepo)
+    public function __construct(UserRepository $userRepository, EProviderRepository $eProviderRepo,UploadRepository $uploadRepository, RoleRepository $roleRepository, CustomFieldRepository $customFieldRepo)
     {
         $this->userRepository = $userRepository;
         $this->uploadRepository = $uploadRepository;
+        $this->eProviderRepository = $eProviderRepo;
         $this->roleRepository = $roleRepository;
         $this->customFieldRepository = $customFieldRepo;
     }
@@ -71,7 +76,6 @@ class UserAPIController extends Controller
         } catch (Exception $e) {
             return $this->sendError($e->getMessage(), 200);
         }
-
     }
 
     /**
@@ -107,6 +111,67 @@ class UserAPIController extends Controller
         return $this->sendResponse($user, 'User retrieved successfully');
     }
 
+
+    /**
+     * Create a new user instance after a valid registration.
+     *
+     * @param array $data
+     * @return
+     */
+    function providerRegister(Request $request)
+    {
+        try {
+            $this->validate($request, User::$rules);
+            $user = new User;
+            $user->name = $request->input('name');
+            $user->email = $request->input('email');
+            $user->phone_number = $request->input('phone_number');
+            $user->phone_verified_at = $request->input('phone_verified_at');
+            $user->device_token = $request->input('device_token', '');
+            $user->password = Hash::make($request->input('password'));
+            $user->api_token = Str::random(60);
+            $user->save();
+
+            $defaultRoles = $this->roleRepository->findByField('default', '1');
+            $defaultRoles = $defaultRoles->pluck('name')->toArray();
+            $user->assignRole($defaultRoles);
+            $input = [
+                "name" => $user->name,
+                "e_provider_type_id" => "3",
+                "users" => [
+                    0 => $user->id,
+                ],
+                "description" => "",
+                "files" => null,
+                "phone_number" =>  $request->input('phone_number'),
+                "mobile_number" =>  $request->input('phone_number'),
+                "taxes" => [0 => 1],
+                "availability_range" => "2",
+                "available" => "1",
+                "featured" => "1"
+            ];
+            $customFields = $this->customFieldRepository->findByField('custom_field_model', $this->eProviderRepository->model());
+
+            $eProvider = $this->eProviderRepository->create($input);
+            $eProvider->customFieldsValues()->createMany(getCustomFieldsValues($customFields, $request));
+            if (isset($input['image']) && $input['image'] && is_array($input['image'])) {
+                foreach ($input['image'] as $fileUuid) {
+                    $cacheUpload = $this->uploadRepository->getByUuid($fileUuid);
+                    $mediaItem = $cacheUpload->getMedia('image')->first();
+                    $mediaItem->copy($eProvider, 'image');
+                }
+            }
+            event(new EProviderChangedEvent($eProvider, $eProvider));
+        } catch (ValidationException $e) {
+            return $this->sendError(array_values($e->errors()));
+        } catch (Exception $e) {
+            return $this->sendError($e->getMessage(), 200);
+        }
+
+
+        return $this->sendResponse($user, 'User retrieved successfully');
+    }
+
     function logout(Request $request)
     {
         $user = $this->userRepository->findByField('api_token', $request->input('api_token'))->first();
@@ -119,7 +184,6 @@ class UserAPIController extends Controller
             $this->sendError($e->getMessage(), 200);
         }
         return $this->sendResponse($user['name'], 'User logout successfully');
-
     }
 
     function user(Request $request)
@@ -136,7 +200,8 @@ class UserAPIController extends Controller
     function settings(Request $request)
     {
         $settings = setting()->all();
-        $settings = array_intersect_key($settings,
+        $settings = array_intersect_key(
+            $settings,
             [
                 'default_tax' => '',
                 'default_currency' => '',
@@ -234,6 +299,5 @@ class UserAPIController extends Controller
         } catch (Exception $e) {
             return $this->sendError("Email not configured in your admin panel settings");
         }
-
     }
 }
