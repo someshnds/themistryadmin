@@ -13,6 +13,7 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use App\Repositories\CustomFieldRepository;
 use App\Events\EProviderChangedEvent;
+use App\Models\EProviderType;
 use App\Repositories\RoleRepository;
 use App\Repositories\UploadRepository;
 use App\Repositories\UserRepository;
@@ -24,6 +25,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use App\Repositories\EProviderRepository;
+use Illuminate\Support\Facades\Log;
 
 class UserAPIController extends Controller
 {
@@ -43,7 +45,7 @@ class UserAPIController extends Controller
      *
      * @return void
      */
-    public function __construct(UserRepository $userRepository, EProviderRepository $eProviderRepo,UploadRepository $uploadRepository, RoleRepository $roleRepository, CustomFieldRepository $customFieldRepo)
+    public function __construct(UserRepository $userRepository, EProviderRepository $eProviderRepo, UploadRepository $uploadRepository, RoleRepository $roleRepository, CustomFieldRepository $customFieldRepo)
     {
         $this->userRepository = $userRepository;
         $this->uploadRepository = $uploadRepository;
@@ -135,9 +137,11 @@ class UserAPIController extends Controller
             $defaultRoles = $this->roleRepository->findByField('default', '1');
             $defaultRoles = $defaultRoles->pluck('name')->toArray();
             $user->assignRole($defaultRoles);
+
+
             $input = [
                 "name" => $user->name,
-                "e_provider_type_id" => "3",
+                "e_provider_type_id" => $request->type,
                 "users" => [
                     0 => $user->id,
                 ],
@@ -148,8 +152,31 @@ class UserAPIController extends Controller
                 "taxes" => [0 => 1],
                 "availability_range" => "2",
                 "available" => "1",
-                "featured" => "1"
+                "featured" => "1",
+                "dob" => $request->dob,
+                'aadhaar_no' => $request->aadhaar_number,
+                'gender' => $request->gender,
+                'permanent_address' => $request->permanenet_address,
+                'education' => $request->education,
+                'certification' => $request->certification,
+                'services' => $request->services,
+                'work_address' => $request->work_address,
+                'pincode' => $request->pincode,
+                'years_of_experience' => $request->experience,
             ];
+
+            if ($request->hasFile('id_proof')) {
+                $id_proof = 'id_proof_' . time() . '.' . request()->id_proof->getClientOriginalExtension();
+                $request->id_proof->move(public_path('uploads/docs'), $id_proof);
+                $input['id_proof'] = $id_proof;
+            }
+
+            if ($request->hasFile('address_proof')) {
+                $address_proof = 'address_proof_' . time() . '.' . request()->address_proof->getClientOriginalExtension();
+                $request->address_proof->move(public_path('uploads/docs'), $address_proof);
+                $input['address_proof'] = $address_proof;
+            }
+
             $customFields = $this->customFieldRepository->findByField('custom_field_model', $this->eProviderRepository->model());
 
             $eProvider = $this->eProviderRepository->create($input);
@@ -172,6 +199,12 @@ class UserAPIController extends Controller
         return $this->sendResponse($user, 'User retrieved successfully');
     }
 
+
+    function serviceType()
+    {
+        $providerType = \App\Models\EProviderType::all();
+        return $providerType;
+    }
     function logout(Request $request)
     {
         $user = $this->userRepository->findByField('api_token', $request->input('api_token'))->first();

@@ -89,7 +89,18 @@ class EProvider extends Model implements HasMedia, Castable
         'availability_range',
         'available',
         'featured',
-        'accepted'
+        'accepted',
+        'aadhaar_no',
+        'dob', 'gender',
+        'permanent_address',
+        'education',
+        'certification',
+        'services',
+        'work_address',
+        'pincode',
+        'years_of_experience',
+        'id_proof',
+        'address_proof',
     ];
 
     /**
@@ -316,7 +327,6 @@ class EProvider extends Model implements HasMedia, Castable
             return $this->hasMany('Modules\Subscription\Models\EProviderSubscription', 'e_provider_id');
         else
             throw new ModuleNotFoundException();
-
     }
 
     /**

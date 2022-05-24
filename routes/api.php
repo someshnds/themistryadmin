@@ -28,6 +28,7 @@ Route::prefix('provider')->group(function () {
     Route::get('translations', 'API\TranslationAPIController@translations');
     Route::get('supported_locales', 'API\TranslationAPIController@supportedLocales');
     Route::post('provider/register', 'API\EProvider\UserAPIController@providerRegister');
+    Route::get('e_provider_types', 'API\EProvider\UserAPIController@serviceType');
 });
 
 
