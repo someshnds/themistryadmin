@@ -17,6 +17,9 @@
 |
 */
 
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+
 Route::get('login/{service}', 'Auth\LoginController@redirectToProvider');
 Route::get('login/{service}/callback', 'Auth\LoginController@handleProviderCallback');
 Auth::routes();
@@ -114,9 +117,7 @@ Route::middleware('auth')->group(function () {
         'show'
     ]);
     Route::post('eProviders/remove-media', 'EProviderController@removeMedia');
-    Route::resource('eProviders', 'EProviderController')->except([
-        'show'
-    ]);
+    Route::resource('eProviders', 'EProviderController');
 
     Route::get('requestedEProviders', 'EProviderController@requestedEProviders')->name('requestedEProviders.index');
 

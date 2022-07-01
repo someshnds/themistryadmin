@@ -1,104 +1,58 @@
-<!-- Id Field -->
-<div class="form-group row col-6">
-    {!! Form::label('id', 'Id:', ['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
-    <div class="col-md-9">
-        <p>{!! $eProvider->id !!}</p>
+<div class="col">
+    <h3>Provider Details</h3>
+    <hr>
+    <div class="row">
+        <div class="col-md-6">
+            <p><strong>Name : </strong> {{ $eProvider->name }}</p>
+            <p><strong>Phone : </strong>{{ $eProvider->phone_number }}</p>
+            <p><strong>Mobile No. : </strong> {{ $eProvider->mobile_number }}</p>
+            <p><strong>Adhaar Number : </strong> {{ $eProvider->aadhaar_no }}</p>
+            <p><strong>Date of Birth : </strong> {{ $eProvider->dob }}</p>
+            <p><strong>Gender : </strong> {{ $eProvider->dob }}</p>
+            <p><strong>Permanent Address: </strong> {!! $eProvider->permanent_address !!}</p>
+            <p><strong>Education : </strong> {{ $eProvider->education }}</p>
+            <p><strong>Certification : </strong> {{ $eProvider->certification }}</p>
+
+        </div>
+        <div class="col-md-6">
+            <p><strong>Availability Range: </strong> {{ $eProvider->availability_range }}</p>
+            <p><strong>Featured : </strong>
+                @if ($eProvider->featured)
+                    <span class="badge badge-success">Yes</span>
+                @else
+                    <span class="badge badge-danger">No</span>
+                @endif
+            </p>
+            <p><strong>Accedpted :</strong>
+                @if ($eProvider->accepted)
+                    <span class="badge badge-success">Yes</span>
+                @else
+                    <span class="badge badge-danger">No</span>
+                @endif
+            </p>
+            <p><strong>Experience : </strong>
+                @if ($eProvider->experience)
+                    <span class="badge badge-success">Yes</span>
+                @else
+                    <span class="badge badge-danger">No</span>
+                @endif
+            </p>
+            <p><strong>Services : </strong> {!! $eProvider->services !!}</p>
+            <p><strong>Work Address : </strong> {{ $eProvider->work_address }}</p>
+            <p><strong>Pincode : </strong> {{ $eProvider->pincode }}</p>
+            <p><strong>Years of Experience : </strong> {{ $eProvider->years_of_experience }}</p>
+            <p><strong>Id Proof : </strong> <a href="{{ asset('public/' . $eProvider->id_proof) }}"><i
+                        class="fa fa-eye"></i> View</a></p>
+            <p><strong>Address Proof : </strong><a href="{{ asset('public/' . $eProvider->address_proof) }}"><i
+                        class="fa fa-eye"></i> View</a></p>
+            </p>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Description</h3>
+            {!! $eProvider->description !!}
+        </div>
     </div>
 </div>
-
-<!-- Image Field -->
-<div class="form-group row col-6">
-    {!! Form::label('image', 'Image:', ['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
-    <div class="col-md-9">
-        <p>{!! $eProvider->image !!}</p>
-    </div>
-</div>
-
-<!-- Name Field -->
-<div class="form-group row col-6">
-    {!! Form::label('name', 'Name:', ['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
-    <div class="col-md-9">
-        <p>{!! $eProvider->name !!}</p>
-    </div>
-</div>
-
-<!-- E Provider Type Id Field -->
-<div class="form-group row col-6">
-    {!! Form::label('e_provider_type_id', 'E Provider Type Id:', ['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
-    <div class="col-md-9">
-        <p>{!! $eProvider->e_provider_type_id !!}</p>
-    </div>
-</div>
-
-<!-- Description Field -->
-<div class="form-group row col-6">
-    {!! Form::label('description', 'Description:', ['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
-    <div class="col-md-9">
-        <p>{!! $eProvider->description !!}</p>
-    </div>
-</div>
-
-<!-- Users Field -->
-<div class="form-group row col-6">
-    {!! Form::label('users', 'Users:', ['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
-    <div class="col-md-9">
-        <p>{!! $eProvider->users !!}</p>
-    </div>
-</div>
-
-<!-- Phone Number Field -->
-<div class="form-group row col-6">
-    {!! Form::label('phone_number', 'Phone Number:', ['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
-    <div class="col-md-9">
-        <p>{!! $eProvider->phone_number !!}</p>
-    </div>
-</div>
-
-<!-- Mobile Number Field -->
-<div class="form-group row col-6">
-    {!! Form::label('mobile_number', 'Mobile Number:', ['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
-    <div class="col-md-9">
-        <p>{!! $eProvider->mobile_number !!}</p>
-    </div>
-</div>
-
-<!-- Addresses Field -->
-<div class="form-group row col-6">
-    {!! Form::label('addresses', 'Addresses:', ['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
-    <div class="col-md-9">
-        <p>{!! $eProvider->addresses !!}</p>
-    </div>
-</div>
-
-<!-- Availability Range Field -->
-<div class="form-group row col-6">
-    {!! Form::label('availability_range', 'Availability Range:', ['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
-    <div class="col-md-9">
-        <p>{!! $eProvider->availability_range !!}</p>
-    </div>
-</div>
-
-<!-- Available Field -->
-<div class="form-group row col-6">
-    {!! Form::label('available', 'Available:', ['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
-    <div class="col-md-9">
-        <p>{!! $eProvider->available !!}</p>
-    </div>
-</div>
-
-<!-- Taxes Field -->
-<div class="form-group row col-6">
-    {!! Form::label('taxes', 'Taxes:', ['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
-    <div class="col-md-9">
-        <p>{!! $eProvider->taxes !!}</p>
-    </div>
-</div>
-
-<!-- Featured Field -->
-<div class="form-group row col-6">
-    {!! Form::label('featured', 'Featured:', ['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
-    <div class="col-md-9">
-        <p>{!! $eProvider->featured !!}</p>
-    </div>
-</div>
-
